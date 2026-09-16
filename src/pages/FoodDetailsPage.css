@@ -1,0 +1,619 @@
+/* =================================
+   FOOD DETAILS PAGE
+================================ */
+
+.food-details-page {
+  min-height: 100vh;
+  padding: 45px 7% 80px;
+  background: #fffaf6;
+}
+
+
+/* =================================
+   BACK BUTTON
+================================ */
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 30px;
+
+  color: #ff6b35;
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  transition: 0.25s ease;
+}
+
+.back-btn:hover {
+  color: #d94f1f;
+  transform: translateX(-5px);
+}
+
+
+/* =================================
+   DETAILS CONTAINER
+================================ */
+
+.details-container {
+  max-width: 1150px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  background: white;
+
+  border-radius: 25px;
+  overflow: hidden;
+
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.09);
+}
+
+
+/* =================================
+   FOOD IMAGE
+================================ */
+
+.details-image {
+  position: relative;
+
+  min-height: 550px;
+
+  background: #f5eee8;
+
+  overflow: hidden;
+}
+
+.details-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 550px;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition: transform 0.5s ease;
+}
+
+.details-image:hover img {
+  transform: scale(1.04);
+}
+
+
+/* =================================
+   RATING
+================================ */
+
+.details-rating {
+  position: absolute;
+
+  left: 20px;
+  bottom: 20px;
+
+  padding: 10px 16px;
+
+  background: white;
+
+  border-radius: 12px;
+
+  color: #333;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =================================
+   DETAILS INFORMATION
+================================ */
+
+.details-info {
+  padding: 45px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+/* Category */
+
+.details-category {
+  display: inline-block;
+
+  color: #ff6b35;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  margin-bottom: 10px;
+}
+
+
+/* Food Name */
+
+.details-info h1 {
+  margin: 0 0 10px;
+
+  color: #222;
+
+  font-size: 46px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+
+/* State */
+
+.details-state {
+  margin: 0 0 20px;
+
+  color: #777;
+
+  font-size: 16px;
+}
+
+
+/* =================================
+   PRICE
+================================= */
+
+.price-box {
+  display: inline-block;
+
+  width: fit-content;
+
+  margin-bottom: 20px;
+
+  color: #ff6b35;
+
+  font-size: 32px;
+  font-weight: 800;
+}
+
+
+/* =================================
+   DESCRIPTION
+================================= */
+
+.details-description {
+  color: #666;
+
+  font-size: 16px;
+
+  line-height: 1.7;
+
+  margin: 0 0 25px;
+}
+
+
+/* =================================
+   INGREDIENTS
+================================= */
+
+.ingredients-section {
+  margin-bottom: 25px;
+}
+
+.ingredients-section h3 {
+  margin: 0 0 12px;
+
+  color: #333;
+
+  font-size: 19px;
+}
+
+.ingredients-section ul {
+  list-style: none;
+
+  padding: 0;
+  margin: 0;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+}
+
+.ingredients-section li {
+  color: #666;
+
+  font-size: 14px;
+
+  background: #fff7f1;
+
+  padding: 8px 10px;
+
+  border-radius: 8px;
+}
+
+
+/* =================================
+   QUANTITY
+================================= */
+
+.quantity-section {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.quantity-section > span {
+  color: #333;
+
+  font-weight: 700;
+}
+
+.quantity-box {
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid #eee;
+
+  border-radius: 25px;
+
+  overflow: hidden;
+
+  background: #fff;
+}
+
+.quantity-box button {
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  background: #fff3eb;
+
+  color: #ff6b35;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.quantity-box button:hover {
+  background: #ffd43b;
+  color: #333;
+}
+
+.quantity-box span {
+  min-width: 40px;
+
+  text-align: center;
+
+  color: #333;
+
+  font-weight: 700;
+}
+
+
+/* =================================
+   TOTAL
+================================= */
+
+.total-price {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  color: #555;
+
+  font-size: 16px;
+}
+
+.total-price strong {
+  color: #ff6b35;
+
+  font-size: 24px;
+}
+
+
+/* =================================
+   ACTION BUTTONS
+================================= */
+
+.details-buttons {
+  display: flex;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+.details-cart-btn,
+.favorite-detail-btn {
+  padding: 13px 20px;
+
+  border-radius: 28px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+
+/* Add Cart */
+
+.details-cart-btn {
+  border: none;
+
+  background: #ff6b35;
+
+  color: white;
+
+  box-shadow:
+    0 7px 18px rgba(255, 107, 53, 0.2);
+}
+
+.details-cart-btn:hover {
+  background: #ffd43b;
+
+  color: #333;
+
+  transform: translateY(-2px);
+}
+
+
+/* Favorite */
+
+.favorite-detail-btn {
+  border: 2px solid #ff6b35;
+
+  background: white;
+
+  color: #ff6b35;
+}
+
+.favorite-detail-btn:hover {
+  background: #ffd43b;
+
+  border-color: #ffd43b;
+
+  color: #333;
+
+  transform: translateY(-2px);
+}
+
+
+/* =================================
+   RELATED FOODS
+================================= */
+
+.related-section {
+  max-width: 1150px;
+
+  margin: 65px auto 0;
+}
+
+.related-section h2 {
+  margin-bottom: 25px;
+
+  color: #222;
+
+  font-size: 30px;
+
+  text-align: center;
+}
+
+
+/* Related Grid */
+
+.related-container {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 25px;
+}
+
+
+/* Related Card */
+
+.related-card {
+  display: block;
+
+  background: white;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  text-decoration: none;
+
+  border: 1px solid #eee;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.06);
+
+  transition: all 0.3s ease;
+}
+
+.related-card:hover {
+  transform: translateY(-7px);
+
+  box-shadow:
+    0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* Related Image */
+
+.related-card img {
+  width: 100%;
+  height: 190px;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition: transform 0.4s ease;
+}
+
+.related-card:hover img {
+  transform: scale(1.06);
+}
+
+
+/* Related Info */
+
+.related-info {
+  padding: 15px;
+}
+
+.related-info h4 {
+  margin: 0 0 8px;
+
+  color: #222;
+
+  font-size: 17px;
+}
+
+.related-info p {
+  margin: 0 0 8px;
+
+  color: #777;
+
+  font-size: 14px;
+}
+
+.related-info strong {
+  color: #ff6b35;
+
+  font-size: 18px;
+}
+
+
+/* =================================
+   NOT FOUND
+================================= */
+
+.food-not-found {
+  min-height: 70vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 20px;
+
+  background: #fffaf6;
+}
+
+.food-not-found h2 {
+  color: #333;
+}
+
+
+/* =================================
+   RESPONSIVE
+================================= */
+
+@media (max-width: 900px) {
+
+  .food-details-page {
+    padding: 35px 20px 60px;
+  }
+
+  .details-container {
+    grid-template-columns: 1fr;
+  }
+
+  .details-image,
+  .details-image img {
+    min-height: 400px;
+  }
+
+  .details-info {
+    padding: 35px 25px;
+  }
+
+  .details-info h1 {
+    font-size: 38px;
+  }
+
+  .related-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .details-image,
+  .details-image img {
+    min-height: 300px;
+  }
+
+  .details-info h1 {
+    font-size: 32px;
+  }
+
+  .ingredients-section ul {
+    grid-template-columns: 1fr;
+  }
+
+  .quantity-section {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .details-buttons {
+    flex-direction: column;
+  }
+
+  .details-cart-btn,
+  .favorite-detail-btn {
+    width: 100%;
+  }
+
+  .related-container {
+    grid-template-columns: 1fr;
+  }
+}
+.favorite-detail-btn {
+  transition: all 0.25s ease;
+}
+
+.favorite-detail-btn:hover {
+  transform: translateY(-2px);
+}
+
+.favorite-detail-active {
+  background: #fff0f3;
+  color: #ff1744;
+  border: 2px solid #ff1744;
+}
+
+.favorite-detail-active:hover {
+  background: #ffe4ea;
+  color: #e60032;
+}

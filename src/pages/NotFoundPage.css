@@ -1,0 +1,66 @@
+.not-found {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fafafa;
+  text-align: center;
+  padding: 20px;
+}
+
+.not-found h1 {
+  font-size: 120px;
+  color: #ff6b35;
+  margin: 0;
+}
+
+.not-found h2 {
+  margin: 10px 0;
+  color: #333;
+}
+
+.not-found p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.home-btn {
+  text-decoration: none;
+  background: #ff6b35;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+
+.home-btn:hover {
+  background: #e85b28;
+}
+.not-found-icon {
+  font-size: 55px;
+  margin-bottom: 5px;
+  animation: floatFood 2.5s ease-in-out infinite;
+}
+
+@keyframes floatFood {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.home-btn {
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(255, 107, 53, 0.25);
+}
+
+.home-btn:hover {
+  background: #e85b28;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(255, 107, 53, 0.3);
+}

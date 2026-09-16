@@ -1,0 +1,627 @@
+/* =====================================
+   FOODIE HUB - ORDER TRACKING
+===================================== */
+
+.tracking-page {
+  min-height: calc(100vh - 80px);
+  background: #fffaf6;
+  padding: 40px 20px 60px;
+}
+
+.tracking-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+
+/* =====================================
+   HEADER
+===================================== */
+
+.tracking-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.tracking-header-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: #ff6b35;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30px;
+
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.25);
+}
+
+.tracking-header h1 {
+  margin: 0;
+  color: #222;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.tracking-header p {
+  margin: 5px 0 0;
+  color: #777;
+  font-size: 14px;
+}
+
+
+/* =====================================
+   CARDS
+===================================== */
+
+.tracking-card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 20px;
+
+  border: 1px solid #f1eee9;
+
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.07);
+}
+
+
+/* =====================================
+   CARD HEADINGS
+===================================== */
+
+.card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 15px;
+  margin-bottom: 35px;
+}
+
+.card-heading h2 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.card-heading p {
+  margin: 5px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.card-title span {
+  font-size: 22px;
+}
+
+.card-title h2 {
+  margin: 0;
+  color: #333;
+  font-size: 19px;
+}
+
+
+/* =====================================
+   STATUS BADGE
+===================================== */
+
+.status-badge {
+  padding: 8px 15px;
+
+  background: #fff3e8;
+  color: #ff6b35;
+
+  border-radius: 20px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =====================================
+   ORDER TIMELINE
+===================================== */
+
+.status-timeline {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.step {
+  flex: 0 0 auto;
+
+  width: 105px;
+
+  text-align: center;
+}
+
+.step-circle {
+  width: 55px;
+  height: 55px;
+
+  margin: 0 auto;
+
+  border-radius: 50%;
+
+  background: #f1f1f1;
+  border: 3px solid #eee;
+
+  color: #999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 21px;
+
+  transition: all 0.3s ease;
+}
+
+
+/* Active */
+
+.step-circle.active {
+  background: #fff3e8;
+  border-color: #ff6b35;
+
+  color: #ff6b35;
+
+  box-shadow:
+    0 0 0 6px rgba(255, 107, 53, 0.1);
+}
+
+
+/* Completed */
+
+.step-circle.completed {
+  background: #ff6b35;
+  border-color: #ff6b35;
+
+  color: white;
+}
+
+
+/* Labels */
+
+.step-label {
+  margin: 10px 0 0;
+
+  color: #999;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  line-height: 1.3;
+}
+
+.step-label.reached {
+  color: #333;
+}
+
+
+/* Connecting line */
+
+.step-line {
+  flex: 1;
+
+  height: 4px;
+
+  background: #eee;
+
+  margin-top: 27px;
+
+  border-radius: 5px;
+
+  transition: background 0.4s ease;
+}
+
+.step-line.completed {
+  background: #ff6b35;
+}
+
+
+/* =====================================
+   LIVE STATUS
+===================================== */
+
+.live-status {
+  margin: 30px 0 0;
+
+  padding: 13px 16px;
+
+  text-align: center;
+
+  background: #fff8f2;
+  color: #ff6b35;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.live-status.delivered {
+  background: #eaf8ef;
+  color: #20a05a;
+}
+
+
+/* =====================================
+   DELIVERY ADDRESS
+===================================== */
+
+.delivery-address {
+  background: #fffaf6;
+
+  border-radius: 12px;
+
+  padding: 18px;
+
+  border-left: 4px solid #ff6b35;
+}
+
+.delivery-address strong {
+  color: #333;
+  font-size: 16px;
+}
+
+.delivery-address p {
+  margin: 7px 0 0;
+
+  color: #666;
+
+  font-size: 14px;
+}
+
+
+/* =====================================
+   ORDER ITEMS
+===================================== */
+
+.tracking-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.tracking-row {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px 0;
+
+  border-bottom: 1px solid #eee;
+}
+
+.tracking-row:last-child {
+  border-bottom: none;
+}
+
+.tracking-item-info {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+.tracking-item-info img {
+  width: 62px;
+  height: 62px;
+
+  object-fit: cover;
+
+  border-radius: 12px;
+
+  transition: transform 0.25s ease;
+}
+
+.tracking-row:hover .tracking-item-info img {
+  transform: scale(1.05);
+}
+
+.tracking-item-info h3 {
+  margin: 0 0 5px;
+
+  color: #333;
+
+  font-size: 15px;
+}
+
+.tracking-item-info p {
+  margin: 0;
+
+  color: #888;
+
+  font-size: 13px;
+}
+
+.tracking-row > strong {
+  color: #333;
+
+  font-size: 15px;
+}
+
+
+/* =====================================
+   PAYMENT SUMMARY
+===================================== */
+
+.summary-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin: 12px 0;
+
+  color: #666;
+
+  font-size: 14px;
+}
+
+.tracking-card hr {
+  border: none;
+
+  border-top: 1px solid #eee;
+
+  margin: 18px 0;
+}
+
+.summary-row.grand-total {
+  color: #333;
+
+  font-size: 19px;
+
+  font-weight: 800;
+}
+
+.summary-row.grand-total span:last-child {
+  color: #ff6b35;
+}
+
+
+/* Payment method */
+
+.payment-method {
+  margin: 18px 0 0;
+
+  padding: 12px;
+
+  background: #fff8f2;
+
+  border-radius: 8px;
+
+  color: #666;
+
+  font-size: 13px;
+}
+
+.payment-method strong {
+  color: #333;
+
+  margin-left: 5px;
+}
+
+
+/* =====================================
+   BUTTONS
+===================================== */
+
+.tracking-actions {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 15px;
+
+  margin-top: 25px;
+}
+
+.back-link {
+  color: #ff6b35;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  transition: 0.25s ease;
+}
+
+.back-link:hover {
+  color: #ffb000;
+}
+
+
+.tracking-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 20px;
+
+  background: #ff6b35;
+
+  color: white;
+
+  border-radius: 25px;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  transition: 0.25s ease;
+}
+
+.tracking-btn:hover {
+  background: #ffb000;
+
+  transform: translateY(-2px);
+}
+
+
+/* =====================================
+   ORDER NOT FOUND
+===================================== */
+
+.tracking-not-found {
+  max-width: 500px;
+
+  margin: 80px auto;
+
+  padding: 50px 30px;
+
+  background: white;
+
+  border-radius: 20px;
+
+  text-align: center;
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+.not-found-icon {
+  font-size: 60px;
+
+  margin-bottom: 15px;
+}
+
+.tracking-not-found h2 {
+  color: #333;
+
+  margin-bottom: 10px;
+}
+
+.tracking-not-found p {
+  color: #777;
+
+  line-height: 1.6;
+
+  margin-bottom: 25px;
+}
+
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width: 700px) {
+
+  .tracking-page {
+    padding: 25px 14px 40px;
+  }
+
+  .tracking-header {
+    gap: 12px;
+  }
+
+  .tracking-header h1 {
+    font-size: 25px;
+  }
+
+  .tracking-header-icon {
+    width: 55px;
+    height: 55px;
+
+    font-size: 25px;
+  }
+
+  .tracking-card {
+    padding: 18px;
+  }
+
+  .card-heading {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    margin-bottom: 25px;
+  }
+
+  .status-timeline {
+    overflow-x: auto;
+
+    padding-bottom: 10px;
+  }
+
+  .step {
+    width: 85px;
+  }
+
+  .step-circle {
+    width: 48px;
+    height: 48px;
+
+    font-size: 18px;
+  }
+
+  .step-line {
+    min-width: 25px;
+
+    margin-top: 24px;
+  }
+
+  .step-label {
+    font-size: 10px;
+  }
+
+  .tracking-row {
+    gap: 10px;
+  }
+
+  .tracking-item-info img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .tracking-item-info h3 {
+    font-size: 14px;
+  }
+
+  .tracking-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .tracking-btn {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .back-link {
+    text-align: center;
+  }
+}
+.live-status.cancelled {
+  color: #d32f2f;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+}

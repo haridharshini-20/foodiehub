@@ -1,0 +1,423 @@
+/* =================================
+   MY FAVORITES - FOODIE HUB
+================================= */
+
+.favorites-page {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* =================================
+   HEADER
+================================= */
+
+.favorites-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.favorites-header h1 {
+  margin: 0;
+  color: #222;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.favorites-header p {
+  margin-top: 8px;
+  color: #777;
+  font-size: 15px;
+}
+
+/* =================================
+   FAVORITES CONTAINER
+================================= */
+
+.favorites-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =================================
+   FAVORITE CARD
+================================= */
+
+.favorite-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  background: white;
+
+  padding: 16px;
+
+  border: 1px solid #eee;
+  border-radius: 14px;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+
+  transition: 0.25s ease;
+}
+
+.favorite-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.11);
+}
+
+/* =================================
+   IMAGE
+================================= */
+
+.favorite-image-link {
+  flex-shrink: 0;
+}
+
+.favorite-image {
+  width: 125px;
+  height: 95px;
+
+  object-fit: cover;
+
+  border-radius: 10px;
+
+  display: block;
+
+  transition: 0.25s ease;
+}
+
+.favorite-image:hover {
+  transform: scale(1.03);
+}
+
+/* =================================
+   FOOD INFORMATION
+================================= */
+
+.favorite-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.favorite-name {
+  display: block;
+
+  color: #222;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  margin-bottom: 7px;
+}
+
+.favorite-name:hover {
+  color: #ff6b35;
+}
+
+.favorite-state,
+.favorite-rating {
+  margin: 4px 0;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+.favorite-price {
+  margin-top: 7px;
+
+  color: #ff6b35;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* =================================
+   ACTION BUTTONS
+================================= */
+
+.favorite-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-shrink: 0;
+}
+
+.favorite-cart-btn,
+.favorite-remove-btn {
+  border: none;
+
+  padding: 10px 15px;
+
+  border-radius: 20px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition: 0.25s ease;
+}
+
+/* Add to cart */
+
+.favorite-cart-btn {
+  background: #ff6b35;
+  color: white;
+}
+
+.favorite-cart-btn:hover {
+  background: #e85b28;
+  transform: translateY(-2px);
+}
+
+/* Remove */
+
+.favorite-remove-btn {
+  background: #fff;
+
+  color: #e53935;
+
+  border: 1px solid #e53935;
+}
+
+.favorite-remove-btn:hover {
+  background: #e53935;
+  color: white;
+
+  transform: translateY(-2px);
+}
+
+/* =================================
+   EMPTY FAVORITES
+================================= */
+
+.empty-favorites {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 60px 25px;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.empty-favorites-icon {
+  font-size: 55px;
+  margin-bottom: 15px;
+}
+
+.empty-favorites h2 {
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.empty-favorites p {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+/* =================================
+   BROWSE BUTTON
+================================= */
+
+.browse-food-btn,
+.favorites-login-btn {
+  display: inline-block;
+
+  padding: 12px 25px;
+
+  background: #ff6b35;
+
+  color: white;
+
+  text-decoration: none;
+
+  border-radius: 25px;
+
+  font-weight: 700;
+
+  transition: 0.25s ease;
+}
+
+.browse-food-btn:hover,
+.favorites-login-btn:hover {
+  background: #e85b28;
+
+  transform: translateY(-2px);
+}
+
+/* =================================
+   LOGIN
+================================= */
+
+.favorites-login {
+  max-width: 500px;
+
+  margin: 60px auto;
+
+  padding: 50px 25px;
+
+  background: white;
+
+  border-radius: 18px;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.favorites-icon {
+  font-size: 50px;
+  margin-bottom: 15px;
+}
+
+.favorites-login h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.favorites-login p {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+/* =================================
+   TABLET
+================================= */
+
+@media (max-width: 800px) {
+
+  .favorite-card {
+    gap: 15px;
+  }
+
+  .favorite-image {
+    width: 105px;
+    height: 85px;
+  }
+
+  .favorite-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .favorite-cart-btn,
+  .favorite-remove-btn {
+    width: 120px;
+  }
+}
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 600px) {
+
+  .favorites-page {
+    margin: 20px auto;
+    padding: 15px;
+  }
+
+  .favorites-header h1 {
+    font-size: 27px;
+  }
+
+  .favorites-header p {
+    font-size: 13px;
+  }
+
+  .favorite-card {
+    display: grid;
+
+    grid-template-columns: 85px 1fr;
+
+    gap: 12px;
+
+    padding: 12px;
+  }
+
+  .favorite-image {
+    width: 85px;
+    height: 75px;
+  }
+
+  .favorite-info {
+    min-width: 0;
+  }
+
+  .favorite-name {
+    font-size: 14px;
+  }
+
+  .favorite-state,
+  .favorite-rating {
+    font-size: 12px;
+  }
+
+  .favorite-price {
+    font-size: 16px;
+  }
+
+  .favorite-actions {
+    grid-column: 1 / -1;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+
+    width: 100%;
+  }
+
+  .favorite-cart-btn,
+  .favorite-remove-btn {
+    width: 100%;
+
+    padding: 10px 5px;
+
+    font-size: 12px;
+  }
+
+  .empty-favorites {
+    padding: 45px 20px;
+  }
+
+  .favorites-login {
+    margin: 40px auto;
+  }
+}
+
+/* =================================
+   VERY SMALL MOBILE
+================================= */
+
+@media (max-width: 360px) {
+
+  .favorite-card {
+    grid-template-columns: 75px 1fr;
+  }
+
+  .favorite-image {
+    width: 75px;
+    height: 70px;
+  }
+
+  .favorite-actions {
+    grid-template-columns: 1fr;
+  }
+
+}

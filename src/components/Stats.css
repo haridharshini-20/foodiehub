@@ -1,0 +1,27 @@
+.stats{
+    background:#ff6b35;
+    color:white;
+    padding:70px 20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:30px;
+    text-align:center;
+}
+
+.stat-box{
+    transition:.3s;
+}
+
+.stat-box:hover{
+    transform:translateY(-8px);
+}
+
+.stat-box h2{
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+.stat-box p{
+    font-size:18px;
+    opacity:.95;
+}
