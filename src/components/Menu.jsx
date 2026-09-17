@@ -18,7 +18,7 @@ function Menu() {
   const [toast, setToast] = useState(null);
 
   const [foods, setFoods] = useState(foodData);
-  const [loadingFoods, setLoadingFoods] = useState(true);
+  const [loadingFoods, setLoadingFoods] = useState(false);
 
   const { addToCart } = useContext(CartContext);
 
@@ -332,10 +332,11 @@ function Menu() {
                   <Link
                     to={`/food/${food.id}`}
                   >
-                    <img
-                      src={food.image}
-                      alt={food.name}
-                    />
+                   <img
+  src={food.image}
+  alt={food.name}
+  loading="lazy"
+/>
                   </Link>
 
                   {/* Favorite */}
