@@ -18,7 +18,12 @@ export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isKitchen, setIsKitchen] = useState(false);
+
+  const [role, setRole] = useState("user");
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +34,8 @@ function AuthProvider({ children }) {
 
           setCurrentUser(null);
           setIsAdmin(false);
+          setIsKitchen(false);
+          setRole("user");
           setLoading(false);
 
           return;
@@ -43,7 +50,10 @@ function AuthProvider({ children }) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
-        console.log("Firestore document exists:", userSnap.exists());
+        console.log(
+          "Firestore document exists:",
+          userSnap.exists()
+        );
 
         if (userSnap.exists()) {
           const userData = userSnap.data();
@@ -51,12 +61,25 @@ function AuthProvider({ children }) {
           console.log("Firestore user data:", userData);
           console.log("User role:", userData.role);
 
-          if (userData.role === "admin") {
+          const userRole = userData.role || "user";
+
+          setRole(userRole);
+
+          if (userRole === "admin") {
             console.log("✅ ADMIN DETECTED");
+
             setIsAdmin(true);
+            setIsKitchen(false);
+          } else if (userRole === "kitchen") {
+            console.log("✅ KITCHEN STAFF DETECTED");
+
+            setIsAdmin(false);
+            setIsKitchen(true);
           } else {
             console.log("❌ Normal user");
+
             setIsAdmin(false);
+            setIsKitchen(false);
           }
         } else {
           console.log("❌ User document does not exist");
@@ -69,11 +92,16 @@ function AuthProvider({ children }) {
             createdAt: new Date().toISOString(),
           });
 
+          setRole("user");
           setIsAdmin(false);
+          setIsKitchen(false);
         }
       } catch (error) {
         console.error("Role checking error:", error);
+
+        setRole("user");
         setIsAdmin(false);
+        setIsKitchen(false);
       } finally {
         setLoading(false);
       }
@@ -112,7 +140,9 @@ function AuthProvider({ children }) {
       displayName: name,
     });
 
+    setRole("user");
     setIsAdmin(false);
+    setIsKitchen(false);
   };
 
   // ================================
@@ -133,6 +163,9 @@ function AuthProvider({ children }) {
 
   const logout = async () => {
     setIsAdmin(false);
+    setIsKitchen(false);
+    setRole("user");
+
     await signOut(auth);
   };
 
@@ -160,6 +193,8 @@ function AuthProvider({ children }) {
       value={{
         currentUser,
         isAdmin,
+        isKitchen,
+        role,
         loading,
         signup,
         login,

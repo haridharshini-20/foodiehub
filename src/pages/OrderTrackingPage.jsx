@@ -1,450 +1,302 @@
-import { Fragment, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { doc, onSnapshot } from "firebase/firestore";
 
-import { db } from "../firebase";
-import { ORDER_STATUSES } from "../contexts/OrderContext";
+import { useContext } from "react";
+import { useParams, Link } from "react-router-dom";
+import { OrderContext } from "../contexts/OrderContext";
 import "./OrderTrackingPage.css";
 
-const STATUS_ICONS = {
-  "Order Placed": "🧾",
-  Preparing: "👨‍🍳",
-  "Out for Delivery": "🛵",
-  Delivered: "🎉",
-};
+const TRACKING_STEPS = [
+  {
+    status: "Order Placed",
+    icon: "🧾",
+    description: "Your order has been placed",
+  },
+  {
+    status: "Preparing",
+    icon: "👨‍🍳",
+    description: "Your food is being prepared",
+  },
+  {
+    status: "Out for Delivery",
+    icon: "🛵",
+    description: "Your order is on the way",
+  },
+  {
+    status: "Delivered",
+    icon: "🎉",
+    description: "Your order has been delivered",
+  },
+];
+
+function normalizeStatus(status) {
+  const value = String(status || "")
+    .trim()
+    .toLowerCase();
+
+  const statusMap = {
+    "order placed": "Order Placed",
+    placed: "Order Placed",
+    pending: "Order Placed",
+
+    "sent to kitchen": "Preparing",
+    preparing: "Preparing",
+
+    ready: "Out for Delivery",
+    "out for delivery": "Out for Delivery",
+
+    completed: "Delivered",
+    delivered: "Delivered",
+
+    cancelled: "Cancelled",
+    canceled: "Cancelled",
+  };
+
+  return statusMap[value] || "Order Placed";
+}
 
 function OrderTrackingPage() {
   const { orderId } = useParams();
 
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { getOrderById } = useContext(OrderContext);
 
-  // ================================
-  // REAL-TIME ORDER LISTENER
-  // ================================
+  const order = getOrderById(orderId);
 
-  useEffect(() => {
-    if (!orderId) {
-      setLoading(false);
-      return;
-    }
-
-    const orderRef = doc(db, "orders", orderId);
-
-    const unsubscribe = onSnapshot(
-      orderRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          setOrder({
-            id: snapshot.id,
-            ...snapshot.data(),
-          });
-        } else {
-          setOrder(null);
-        }
-
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error listening to order:", error);
-        setLoading(false);
-      }
-    );
-
-    return unsubscribe;
-  }, [orderId]);
-
-  // ================================
-  // LOADING
-  // ================================
-
-  if (loading) {
-    return (
-      <section className="tracking-page">
-        <div className="tracking-not-found">
-          <div className="not-found-icon">📦</div>
-
-          <h2>Loading Order...</h2>
-
-          <p>
-            Getting the latest order status.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  // ================================
+  // =========================
   // ORDER NOT FOUND
-  // ================================
+  // =========================
 
   if (!order) {
     return (
-      <section className="tracking-page">
+      <main className="tracking-page">
         <div className="tracking-not-found">
-          <div className="not-found-icon">📦</div>
+          <div className="tracking-not-found-icon">
+            📦
+          </div>
 
           <h2>Order Not Found</h2>
 
-          <p>
-            We couldn't find this order. Please go back
-            to your orders and try again.
-          </p>
+          <p>We couldn't find this order.</p>
 
           <Link
             to="/my-orders"
-            className="tracking-btn"
+            className="tracking-back-button"
           >
-            ← Back to My Orders
+            View My Orders
           </Link>
         </div>
-      </section>
+      </main>
     );
   }
 
-  // ================================
-  // STATUS
-  // ================================
+  // =========================
+  // NORMALIZE STATUS
+  // =========================
 
-  const currentStatus = order.status || "Order Placed";
+  const currentStatus = normalizeStatus(order.status);
 
-  const currentIndex =
-    ORDER_STATUSES.indexOf(currentStatus);
+  const isCancelled = currentStatus === "Cancelled";
 
-  const isDelivered =
-    currentStatus === "Delivered";
+  const currentStepIndex = TRACKING_STEPS.findIndex(
+    (step) => step.status === currentStatus
+  );
 
-  const isCancelled =
-    currentStatus === "Cancelled";
+  const activeStepIndex =
+    currentStepIndex === -1 ? 0 : currentStepIndex;
+
+  // =========================
+  // RENDER
+  // =========================
 
   return (
-    <section className="tracking-page">
-      <div className="tracking-container">
+    <main className="tracking-page">
 
-        {/* ================= HEADER ================= */}
+      {/* PAGE HEADER */}
 
-        <div className="tracking-header">
+      <div className="tracking-header">
+        <div className="tracking-header-icon">
+          🛵
+        </div>
 
-          <div className="tracking-header-icon">
-            🛵
-          </div>
+        <div className="tracking-header-content">
+          <h1>Track Your Order</h1>
 
+          <p>
+            Order ID: #
+            {order.id.slice(0, 8)}
+          </p>
+        </div>
+      </div>
+
+      {/* TRACKING CARD */}
+
+      <section className="tracking-card">
+
+        <div className="tracking-card-header">
           <div>
-            <h1>Track Your Order</h1>
+            <h2>Order Status</h2>
 
             <p>
-              Order ID:
-              <strong>
-                #{order.id.slice(0, 10)}
-              </strong>
+              Follow your food as it makes its way
+              to you
             </p>
           </div>
 
+          <span
+            className={`tracking-status-badge ${
+              isCancelled ? "cancelled" : ""
+            }`}
+          >
+            {currentStatus}
+          </span>
         </div>
 
+        {/* CANCELLED */}
 
-        {/* ================= STATUS ================= */}
-
-        <div className="tracking-card status-card">
-
-          <div className="card-heading">
-
-            <div>
-              <h2>Order Status</h2>
-
-              <p>
-                Follow your food as it makes its way to you
-              </p>
+        {isCancelled ? (
+          <div className="cancelled-section">
+            <div className="cancelled-icon">
+              ❌
             </div>
 
-            <span className="status-badge">
-              {currentStatus}
-            </span>
+            <h3>Order Cancelled</h3>
 
+            <p>
+              This order has been cancelled.
+            </p>
           </div>
+        ) : (
+          <>
+            {/* PROGRESS TRACKER */}
 
+            <div className="tracking-progress">
 
-          {/* TIMELINE */}
+              {TRACKING_STEPS.map((step, index) => {
+                const isActive =
+                  index <= activeStepIndex;
 
-          {!isCancelled && (
-            <div className="status-timeline">
+                const isCurrent =
+                  index === activeStepIndex;
 
-              {ORDER_STATUSES.map(
-                (status, index) => {
+                return (
+                  <div
+                    className="tracking-step-wrapper"
+                    key={step.status}
+                  >
 
-                  const isCompleted =
-                    index < currentIndex;
+                    <div className="tracking-step">
 
-                  const isActive =
-                    index === currentIndex;
-
-                  return (
-                    <Fragment key={status}>
-
-                      <div className="step">
-
-                        <div
-                          className={
-                            "step-circle" +
-                            (isCompleted
-                              ? " completed"
-                              : "") +
-                            (isActive
-                              ? " active"
-                              : "")
-                          }
-                        >
-                          {isCompleted
-                            ? "✓"
-                            : STATUS_ICONS[status]}
-                        </div>
-
-                        <p
-                          className={
-                            "step-label" +
-                            (isActive ||
-                            isCompleted
-                              ? " reached"
-                              : "")
-                          }
-                        >
-                          {status}
-                        </p>
-
+                      <div
+                        className={`tracking-step-icon ${
+                          isActive ? "active" : ""
+                        } ${
+                          isCurrent ? "current" : ""
+                        }`}
+                      >
+                        {step.icon}
                       </div>
 
-
-                      {index <
-                        ORDER_STATUSES.length - 1 && (
-                        <div
-                          className={
-                            "step-line" +
-                            (index < currentIndex
-                              ? " completed"
-                              : "")
-                          }
-                        />
-                      )}
-
-                    </Fragment>
-                  );
-                }
-              )}
-
-            </div>
-          )}
-
-
-          {/* LIVE STATUS */}
-
-          <p
-            className={
-              "live-status" +
-              (isDelivered
-                ? " delivered"
-                : "") +
-              (isCancelled
-                ? " cancelled"
-                : "")
-            }
-          >
-            {isCancelled
-              ? "❌ This order has been cancelled."
-              : isDelivered
-              ? "🎉 Your order has been delivered. Enjoy your meal!"
-              : `Current status: ${currentStatus}`}
-          </p>
-
-        </div>
-
-
-        {/* ================= DELIVERY ADDRESS ================= */}
-
-        <div className="tracking-card">
-
-          <div className="card-title">
-            <span>📍</span>
-            <h2>Delivery Address</h2>
-          </div>
-
-          <div className="delivery-address">
-
-            <strong>
-              {order.address?.fullName || "Customer"}
-            </strong>
-
-            <p>
-              📞 {order.address?.phone || "-"}
-            </p>
-
-            <p>
-              {order.address?.addressLine || "-"}
-            </p>
-
-            <p>
-              {order.address?.city || "-"},{" "}
-              {order.address?.state || "-"} -{" "}
-              {order.address?.pincode || "-"}
-            </p>
-
-          </div>
-
-        </div>
-
-
-        {/* ================= ORDER ITEMS ================= */}
-
-        <div className="tracking-card">
-
-          <div className="card-title">
-            <span>🍽️</span>
-            <h2>Ordered Items</h2>
-          </div>
-
-          <div className="tracking-items">
-
-            {Array.isArray(order.items) &&
-            order.items.length > 0 ? (
-
-              order.items.map((item, index) => (
-
-                <div
-                  className="tracking-row"
-                  key={item.id || index}
-                >
-
-                  <div className="tracking-item-info">
-
-                    {item.image && (
-                      <img
-                        src={item.image}
-                        alt={item.name || "Food item"}
-                      />
-                    )}
-
-                    <div>
-
-                      <h3>
-                        {item.name || "Food Item"}
-                      </h3>
-
-                      <p>
-                        Quantity: {item.quantity || 1}
-                      </p>
-
+                      <span
+                        className={`tracking-step-label ${
+                          isActive ? "active" : ""
+                        }`}
+                      >
+                        {step.status}
+                      </span>
                     </div>
 
+                    {/* CONNECTOR */}
+
+                    {index <
+                      TRACKING_STEPS.length - 1 && (
+                      <div
+                        className={`tracking-connector ${
+                          index < activeStepIndex
+                            ? "active"
+                            : ""
+                        }`}
+                      />
+                    )}
                   </div>
+                );
+              })}
+            </div>
 
-                  <strong>
-                    ₹
-                    {Number(item.price || 0) *
-                      Number(item.quantity || 1)}
-                  </strong>
+            {/* CURRENT STATUS */}
 
-                </div>
+            <div className="tracking-current-status">
+              <span>Current status:</span>
 
-              ))
+              <strong>{currentStatus}</strong>
+            </div>
 
-            ) : (
+            <p className="tracking-description">
+              {
+                TRACKING_STEPS[activeStepIndex]
+                  ?.description
+              }
+            </p>
+          </>
+        )}
+      </section>
 
-              <p>No items available.</p>
+      {/* ORDER DETAILS */}
 
-            )}
+      <section className="tracking-details">
 
-          </div>
+        <h2>Order Details</h2>
 
+        <div className="tracking-detail-row">
+          <span>Order ID</span>
+
+          <strong>
+            #{order.id.slice(0, 8)}
+          </strong>
         </div>
 
+        <div className="tracking-detail-row">
+          <span>Payment Method</span>
 
-        {/* ================= PAYMENT SUMMARY ================= */}
-
-        <div className="tracking-card">
-
-          <div className="card-title">
-            <span>💰</span>
-            <h2>Payment Summary</h2>
-          </div>
-
-          <div className="summary-row">
-            <span>Item Total</span>
-            <span>
-              ₹{order.subtotal || 0}
-            </span>
-          </div>
-
-          <div className="summary-row">
-
-            <span>Delivery Fee</span>
-
-            <span>
-              {Number(order.deliveryFee || 0) === 0
-                ? "FREE"
-                : `₹${order.deliveryFee}`}
-            </span>
-
-          </div>
-
-          <div className="summary-row">
-
-            <span>Taxes & GST</span>
-
-            <span>
-              ₹{order.taxes || 0}
-            </span>
-
-          </div>
-
-          <hr />
-
-          <div className="summary-row grand-total">
-
-            <span>To Pay</span>
-
-            <span>
-              ₹
-              {order.grandTotal ||
-                order.total ||
-                0}
-            </span>
-
-          </div>
-
-          <div className="payment-method">
-
-            💳 Payment Method:
-
-            <strong>
-              {order.paymentMethod || "Not specified"}
-            </strong>
-
-          </div>
-
+          <strong>
+            {order.paymentMethod || "COD"}
+          </strong>
         </div>
 
+        <div className="tracking-detail-row">
+          <span>Total Amount</span>
 
-        {/* ================= ACTIONS ================= */}
-
-        <div className="tracking-actions">
-
-          <Link
-            to="/my-orders"
-            className="back-link"
-          >
-            ← My Orders
-          </Link>
-
-          <Link
-            to="/"
-            className="tracking-btn"
-          >
-            🏠 Back to Home
-          </Link>
-
+          <strong>
+            ₹
+            {order.grandTotal ??
+              order.total ??
+              order.amount ??
+              0}
+          </strong>
         </div>
 
+        <div className="tracking-detail-row">
+          <span>Order Date</span>
+
+          <strong>
+            {order.orderedAt
+              ? new Date(
+                  order.orderedAt
+                ).toLocaleDateString()
+              : "—"}
+          </strong>
+        </div>
+      </section>
+
+      {/* BACK BUTTON */}
+
+      <div className="tracking-actions">
+        <Link
+          to="/my-orders"
+          className="tracking-back-button"
+        >
+          ← Back to My Orders
+        </Link>
       </div>
-    </section>
+
+    </main>
   );
 }
 

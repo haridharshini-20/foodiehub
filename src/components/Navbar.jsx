@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import { CartContext } from "../contexts/CartContext";
 import { AuthContext } from "../contexts/AuthContext";
@@ -15,6 +15,9 @@ import {
   FaShoppingCart,
   FaSignInAlt,
   FaUserShield,
+ FaBars,
+FaTimes,
+FaUtensils,
 } from "react-icons/fa";
 
 function Navbar() {
@@ -28,24 +31,39 @@ function Navbar() {
 
   const navigate = useNavigate();
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const cartCount = cart.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
+      closeMenu();
       navigate("/");
     } catch (error) {
-      console.log("Logout error:", error);
+      console.error("Logout error:", error);
     }
   };
 
   return (
     <nav className="navbar">
-      {/* Logo */}
-      <Link to="/" className="logo">
+
+      {/* =========================
+          LOGO
+      ========================= */}
+
+      <Link
+        to="/"
+        className="logo"
+        onClick={closeMenu}
+      >
         <div className="logo-circle">
           <img
             src={logo}
@@ -55,61 +73,146 @@ function Navbar() {
         </div>
       </Link>
 
-      {/* Navigation */}
-      <ul className="nav-menu">
-        {/* Home - Everyone */}
+
+      {/* =========================
+          MOBILE MENU BUTTON
+      ========================= */}
+
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label={
+          menuOpen
+            ? "Close navigation menu"
+            : "Open navigation menu"
+        }
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+
+      {/* =========================
+          NAVIGATION
+      ========================= */}
+
+      <ul
+        className={`nav-menu ${
+          menuOpen ? "nav-menu-open" : ""
+        }`}
+      >
+
+        {/* HOME */}
+
         <li>
-          <Link to="/" className="nav-link">
+          <Link
+            to="/"
+            className="nav-link"
+            onClick={closeMenu}
+          >
             <FaHome />
             <span>Home</span>
           </Link>
         </li>
 
-        {/* Favorites and Orders - Normal users only */}
+
+        {/* =========================
+            NORMAL USER LINKS
+        ========================= */}
+
         {currentUser && !isAdmin && (
           <>
             <li>
-              <Link to="/favorites" className="nav-link">
+              <Link
+                to="/favorites"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 <FaHeart />
                 <span>Favorites</span>
               </Link>
             </li>
 
             <li>
-              <Link to="/my-orders" className="nav-link">
+              <Link
+                to="/my-orders"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 <FaBoxOpen />
                 <span>Orders</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/profile"
+                className="nav-link"
+                onClick={closeMenu}
+              >
+                <FaUser />
+                <span>Profile</span>
               </Link>
             </li>
           </>
         )}
 
-        {/* Admin links - Admin only */}
+
+        {/* =========================
+            ADMIN LINKS
+        ========================= */}
+
         {currentUser && isAdmin && (
           <>
             <li>
-              <Link to="/admin" className="nav-link">
+              <Link
+                to="/admin"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 <FaUserShield />
                 <span>Admin</span>
               </Link>
             </li>
+            <li>
+  <Link
+    to="/kitchen"
+    className="nav-link"
+    onClick={closeMenu}
+  >
+    <FaUtensils />
+    <span>Kitchen Dashboard</span>
+  </Link>
+</li>
 
             <li>
-              <Link to="/admin/orders" className="nav-link">
+              <Link
+                to="/admin/orders"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 📦
                 <span>Manage Orders</span>
               </Link>
             </li>
 
             <li>
-              <Link to="/admin/users" className="nav-link">
+              <Link
+                to="/admin/users"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 👥
                 <span>Manage Users</span>
               </Link>
             </li>
 
             <li>
-              <Link to="/admin/foods" className="nav-link">
+              <Link
+                to="/admin/foods"
+                className="nav-link"
+                onClick={closeMenu}
+              >
                 🍽️
                 <span>Manage Foods</span>
               </Link>
@@ -117,41 +220,45 @@ function Navbar() {
           </>
         )}
 
-        {/* Logged-in user */}
-        {currentUser ? (
-          <>
-            {/* Profile only for normal users */}
-            {!isAdmin && (
-              <li>
-                <Link to="/profile" className="nav-link">
-                  <FaUser />
-                  <span>Profile</span>
-                </Link>
-              </li>
-            )}
 
-            <li>
-              <button
-                onClick={handleLogout}
-                className="logout-btn"
-              >
-                Logout
-              </button>
-            </li>
-          </>
-        ) : (
-          /* Login - Logged-out users */
+        {/* =========================
+            LOGIN / LOGOUT
+        ========================= */}
+
+        {currentUser ? (
           <li>
-            <Link to="/login" className="nav-link">
+            <button
+              onClick={handleLogout}
+              className="logout-btn"
+            >
+              Logout
+            </button>
+          </li>
+        ) : (
+          <li>
+            <Link
+              to="/login"
+              className="nav-link"
+              onClick={closeMenu}
+            >
               <FaSignInAlt />
               <span>Login</span>
             </Link>
           </li>
         )}
 
-        {/* Cart - Everyone */}
+
+        {/* =========================
+            CART
+        ========================= */}
+
         <li>
-          <Link to="/cart" className="cart-icon">
+          <Link
+            to="/cart"
+            className="cart-icon"
+            onClick={closeMenu}
+            aria-label={`Cart with ${cartCount} items`}
+          >
             <FaShoppingCart />
 
             {cartCount > 0 && (
@@ -161,7 +268,9 @@ function Navbar() {
             )}
           </Link>
         </li>
+
       </ul>
+
     </nav>
   );
 }

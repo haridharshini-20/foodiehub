@@ -182,3 +182,76 @@
     border-right-color: var(--border);
   }
 }
+
+/* =====================================
+   APP LAYOUT
+===================================== */
+
+.app-content {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+}
+
+/*
+  Use this only if your Navbar is fixed
+  or sticky at the top of the screen.
+*/
+
+@media (min-width: 769px) {
+  .app-content {
+    padding-top: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    padding-top: 75px;
+  }
+}
+
+/* =========================
+   GLOBAL RESET
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fffaf7;
+  color: #111;
+}
+
+/* =========================
+   NAVBAR SPACING FIX
+========================= */
+
+/*
+  Your navbar is around 80px tall.
+  This keeps the page content below it.
+*/
+
+.app-content {
+  width: 100%;
+  padding-top: 80px;
+  min-height: calc(100vh - 80px);
+}
+
+/* =========================
+   RESPONSIVE NAVBAR SPACING
+========================= */
+
+@media (max-width: 768px) {
+  .app-content {
+    padding-top: 80px;
+  }
+}

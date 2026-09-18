@@ -1,3 +1,4 @@
+
 import { createContext, useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../firebase";
@@ -21,21 +22,81 @@ export const ORDER_STATUSES = [
   "Cancelled",
 ];
 
+// All statuses used by the tracking page
 const STATUS_TIMELINE = [
-  { status: "Order Placed", afterSeconds: 0 },
-  { status: "Preparing", afterSeconds: 6 },
-  { status: "Out for Delivery", afterSeconds: 14 },
-  { status: "Delivered", afterSeconds: 24 },
+  {
+    status: "Order Placed",
+    afterSeconds: 0,
+  },
+  {
+    status: "Preparing",
+    afterSeconds: 6,
+  },
+  {
+    status: "Out for Delivery",
+    afterSeconds: 14,
+  },
+  {
+    status: "Delivered",
+    afterSeconds: 24,
+  },
 ];
 
+// Convert old status names to the new standard names
+export function normalizeOrderStatus(status) {
+  const statusMap = {
+    "Order Placed": "Order Placed",
+    "Preparing": "Preparing",
+    "Out for Delivery": "Out for Delivery",
+    "Delivered": "Delivered",
+    "Cancelled": "Cancelled",
+
+    // Old status names
+    "Placed": "Order Placed",
+    "Pending": "Order Placed",
+    "Sent to Kitchen": "Preparing",
+    "Ready": "Out for Delivery",
+    "Completed": "Delivered",
+    "completed": "Delivered",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "Canceled": "Cancelled",
+  };
+
+  return statusMap[status] || "Order Placed";
+}
+
+// Convert Firestore order into a consistent format
+function normalizeOrder(order) {
+  return {
+    ...order,
+    status: normalizeOrderStatus(order.status),
+  };
+}
+
+// Automatically calculate status based on order time
 function computeStatus(order) {
-  // Never change a cancelled order automatically
-  if (order.status === "Cancelled") {
+  const currentStatus = normalizeOrderStatus(order.status);
+
+  // Never automatically change a cancelled order
+  if (currentStatus === "Cancelled") {
     return "Cancelled";
   }
 
+  // Already delivered orders stay delivered
+  if (currentStatus === "Delivered") {
+    return "Delivered";
+  }
+
+  const orderedTime = new Date(order.orderedAt).getTime();
+
+  // Invalid or missing date
+  if (Number.isNaN(orderedTime)) {
+    return currentStatus;
+  }
+
   const secondsElapsed =
-    (Date.now() - new Date(order.orderedAt).getTime()) / 1000;
+    (Date.now() - orderedTime) / 1000;
 
   let status = STATUS_TIMELINE[0].status;
 
@@ -48,49 +109,72 @@ function computeStatus(order) {
   return status;
 }
 
+// Load saved orders
 function loadOrdersFromStorage() {
   try {
     const saved = localStorage.getItem("foodiehub_orders");
+
     return saved ? JSON.parse(saved) : [];
-  } catch {
+  } catch (error) {
+    console.error("Storage loading error:", error);
     return [];
   }
 }
 
 function OrderProvider({ children }) {
-  const [orders, setOrders] = useState(loadOrdersFromStorage);
+  const [orders, setOrders] = useState(
+    loadOrdersFromStorage
+  );
 
-  // Load orders from Firestore when authentication is ready
+  // =========================
+  // LOAD ORDERS FROM FIRESTORE
+  // =========================
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setOrders([]);
-        return;
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (user) => {
+        if (!user) {
+          setOrders([]);
+          return;
+        }
+
+        try {
+          const ordersQuery = query(
+            collection(db, "orders"),
+            where("userId", "==", user.uid)
+          );
+
+          const querySnapshot = await getDocs(
+            ordersQuery
+          );
+
+          const firebaseOrders =
+            querySnapshot.docs.map(
+              (docSnapshot) =>
+                normalizeOrder({
+                  id: docSnapshot.id,
+                  ...docSnapshot.data(),
+                })
+            );
+
+          setOrders(firebaseOrders);
+        } catch (error) {
+          console.error(
+            "Error loading orders:",
+            error
+          );
+        }
       }
-
-      try {
-        const ordersQuery = query(
-          collection(db, "orders"),
-          where("userId", "==", user.uid)
-        );
-
-        const querySnapshot = await getDocs(ordersQuery);
-
-        const firebaseOrders = querySnapshot.docs.map((docSnapshot) => ({
-          id: docSnapshot.id,
-          ...docSnapshot.data(),
-        }));
-
-        setOrders(firebaseOrders);
-      } catch (error) {
-        console.error("Error loading orders:", error);
-      }
-    });
+    );
 
     return unsubscribe;
   }, []);
 
-  // Save current orders to localStorage
+  // =========================
+  // SAVE TO LOCAL STORAGE
+  // =========================
+
   useEffect(() => {
     localStorage.setItem(
       "foodiehub_orders",
@@ -98,24 +182,28 @@ function OrderProvider({ children }) {
     );
   }, [orders]);
 
-  // Automatically update order status
+  // =========================
+  // AUTOMATIC STATUS UPDATE
+  // =========================
+
   useEffect(() => {
     const interval = setInterval(() => {
       setOrders((prevOrders) =>
         prevOrders.map((order) => {
-          // Cancelled orders must stay cancelled
-          if (order.status === "Cancelled") {
+          const correctStatus =
+            computeStatus(order);
+
+          if (
+            normalizeOrderStatus(order.status) ===
+            correctStatus
+          ) {
             return order;
           }
 
-          const correctStatus = computeStatus(order);
-
-          return order.status === correctStatus
-            ? order
-            : {
-                ...order,
-                status: correctStatus,
-              };
+          return {
+            ...order,
+            status: correctStatus,
+          };
         })
       );
     }, 3000);
@@ -123,7 +211,10 @@ function OrderProvider({ children }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Add a new order
+  // =========================
+  // ADD ORDER
+  // =========================
+
   const addOrder = async (orderData) => {
     try {
       if (!auth.currentUser) {
@@ -132,11 +223,16 @@ function OrderProvider({ children }) {
       }
 
       const newOrder = {
-        status: "Order Placed",
-        orderedAt: new Date().toISOString(),
-        userId: auth.currentUser.uid,
-        userEmail: auth.currentUser.email,
         ...orderData,
+
+        // Always use the same status
+        status: "Order Placed",
+
+        orderedAt: new Date().toISOString(),
+
+        userId: auth.currentUser.uid,
+
+        userEmail: auth.currentUser.email || "",
       };
 
       const docRef = await addDoc(
@@ -156,23 +252,58 @@ function OrderProvider({ children }) {
 
       return savedOrder;
     } catch (error) {
-      console.error("Error saving order:", error);
+      console.error(
+        "Error saving order:",
+        error
+      );
+
       return null;
     }
   };
 
-  // Manually update order status
-  const updateOrderStatus = (id, status) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.id === id
-          ? { ...order, status }
-          : order
-      )
-    );
+  // =========================
+  // UPDATE ORDER STATUS
+  // =========================
+
+  const updateOrderStatus = async (id, status) => {
+    try {
+      const normalizedStatus =
+        normalizeOrderStatus(status);
+
+      await updateDoc(
+        doc(db, "orders", id),
+        {
+          status: normalizedStatus,
+          updatedAt: new Date().toISOString(),
+        }
+      );
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === id
+            ? {
+                ...order,
+                status: normalizedStatus,
+              }
+            : order
+        )
+      );
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error updating order status:",
+        error
+      );
+
+      return false;
+    }
   };
 
-  // Cancel an order
+  // =========================
+  // CANCEL ORDER
+  // =========================
+
   const cancelOrder = async (id) => {
     try {
       const order = orders.find(
@@ -183,20 +314,25 @@ function OrderProvider({ children }) {
         return false;
       }
 
-      // Only Order Placed and Preparing can be cancelled
+      const currentStatus =
+        normalizeOrderStatus(order.status);
+
+      // Only these statuses can be cancelled
       if (
-        order.status !== "Order Placed" &&
-        order.status !== "Preparing"
+        currentStatus !== "Order Placed" &&
+        currentStatus !== "Preparing"
       ) {
         return false;
       }
 
-      // Update Firestore
-      await updateDoc(doc(db, "orders", id), {
-        status: "Cancelled",
-      });
+      await updateDoc(
+        doc(db, "orders", id),
+        {
+          status: "Cancelled",
+          updatedAt: new Date().toISOString(),
+        }
+      );
 
-      // Update React state immediately
       setOrders((prevOrders) =>
         prevOrders.map((item) =>
           item.id === id
@@ -219,7 +355,10 @@ function OrderProvider({ children }) {
     }
   };
 
-  // Find one order
+  // =========================
+  // GET ONE ORDER
+  // =========================
+
   const getOrderById = (id) => {
     return orders.find(
       (order) => order.id === id
