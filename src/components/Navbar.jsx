@@ -15,9 +15,9 @@ import {
   FaShoppingCart,
   FaSignInAlt,
   FaUserShield,
- FaBars,
-FaTimes,
-FaUtensils,
+  FaBars,
+  FaTimes,
+  FaUtensils,
 } from "react-icons/fa";
 
 function Navbar() {
@@ -55,15 +55,8 @@ function Navbar() {
   return (
     <nav className="navbar">
 
-      {/* =========================
-          LOGO
-      ========================= */}
-
-      <Link
-        to="/"
-        className="logo"
-        onClick={closeMenu}
-      >
+      {/* LOGO */}
+      <Link to="/" className="logo" onClick={closeMenu}>
         <div className="logo-circle">
           <img
             src={logo}
@@ -74,10 +67,7 @@ function Navbar() {
       </Link>
 
 
-      {/* =========================
-          MOBILE MENU BUTTON
-      ========================= */}
-
+      {/* MOBILE MENU BUTTON */}
       <button
         className="menu-toggle"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -92,10 +82,7 @@ function Navbar() {
       </button>
 
 
-      {/* =========================
-          NAVIGATION
-      ========================= */}
-
+      {/* NAVIGATION MENU */}
       <ul
         className={`nav-menu ${
           menuOpen ? "nav-menu-open" : ""
@@ -103,7 +90,6 @@ function Navbar() {
       >
 
         {/* HOME */}
-
         <li>
           <Link
             to="/"
@@ -116,10 +102,7 @@ function Navbar() {
         </li>
 
 
-        {/* =========================
-            NORMAL USER LINKS
-        ========================= */}
-
+        {/* NORMAL USER */}
         {currentUser && !isAdmin && (
           <>
             <li>
@@ -158,10 +141,7 @@ function Navbar() {
         )}
 
 
-        {/* =========================
-            ADMIN LINKS
-        ========================= */}
-
+        {/* ADMIN */}
         {currentUser && isAdmin && (
           <>
             <li>
@@ -174,16 +154,17 @@ function Navbar() {
                 <span>Admin</span>
               </Link>
             </li>
+
             <li>
-  <Link
-    to="/kitchen"
-    className="nav-link"
-    onClick={closeMenu}
-  >
-    <FaUtensils />
-    <span>Kitchen Dashboard</span>
-  </Link>
-</li>
+              <Link
+                to="/kitchen"
+                className="nav-link"
+                onClick={closeMenu}
+              >
+                <FaUtensils />
+                <span>Kitchen Dashboard</span>
+              </Link>
+            </li>
 
             <li>
               <Link
@@ -221,10 +202,7 @@ function Navbar() {
         )}
 
 
-        {/* =========================
-            LOGIN / LOGOUT
-        ========================= */}
-
+        {/* LOGIN / LOGOUT */}
         {currentUser ? (
           <li>
             <button
@@ -247,29 +225,24 @@ function Navbar() {
           </li>
         )}
 
-
-        {/* =========================
-            CART
-        ========================= */}
-
-        <li>
-          <Link
-            to="/cart"
-            className="cart-icon"
-            onClick={closeMenu}
-            aria-label={`Cart with ${cartCount} items`}
-          >
-            <FaShoppingCart />
-
-            {cartCount > 0 && (
-              <span className="cart-count">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-        </li>
-
       </ul>
+
+
+      {/* CART — OUTSIDE THE MENU */}
+      <Link
+        to="/cart"
+        className="cart-icon"
+        onClick={closeMenu}
+        aria-label={`Cart with ${cartCount} items`}
+      >
+        <FaShoppingCart />
+
+        {cartCount > 0 && (
+          <span className="cart-count">
+            {cartCount}
+          </span>
+        )}
+      </Link>
 
     </nav>
   );

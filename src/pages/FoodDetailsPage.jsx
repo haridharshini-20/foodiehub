@@ -31,12 +31,33 @@ function FoodDetailsPage() {
   const [toast, setToast] = useState(null);
 
   // =========================
-  // LOAD FOOD FROM FIRESTORE
+  // LOAD FOOD
   // =========================
 
   useEffect(() => {
     const loadFood = async () => {
+      setLoading(true);
+
+      // Find food from local foodData
+      const originalFood = foodData.find(
+        (item) => item.id === Number(id)
+      );
+
+      // Food not found
+      if (!originalFood) {
+        setFood(null);
+        setLoading(false);
+        return;
+      }
+
+      // Show local data immediately
+      setFood({
+        ...originalFood,
+        available: true,
+      });
+
       try {
+        // Get Firestore data
         const snapshot = await getDocs(
           collection(db, "foods")
         );
@@ -50,41 +71,32 @@ function FoodDetailsPage() {
 
         setAllFoods(firestoreFoods);
 
-        // Find the original food from foodData
-        const originalFood = foodData.find(
-          (item) => item.id === Number(id)
-        );
-
-        if (!originalFood) {
-          setFood(null);
-          return;
-        }
-
-        // Find matching food in Firestore by name
+        // Find matching Firestore food
         const firestoreFood = firestoreFoods.find(
-          (item) =>
-            item.name === originalFood.name
+          (item) => item.name === originalFood.name
         );
 
+        // Merge Firestore data
+        // but ALWAYS keep local image path
         if (firestoreFood) {
           setFood({
             ...originalFood,
             ...firestoreFood,
 
-            // Keep the original numeric ID
+            // Keep local numeric ID
             id: originalFood.id,
 
-            // Keep Firestore ID separately
-            firestoreId:
-              firestoreFood.firestoreId,
-          });
-        } else {
-          setFood(null);
-        }
+            // Keep Firebase document ID
+            firestoreId: firestoreFood.firestoreId,
 
+            // IMPORTANT:
+            // Always use image from public folder
+            image: originalFood.image,
+          });
+        }
       } catch (error) {
-        console.error(
-          "Error loading food:",
+        console.warn(
+          "Firestore unavailable. Using local food data:",
           error
         );
       } finally {
@@ -140,16 +152,21 @@ function FoodDetailsPage() {
     )
     .slice(0, 3)
     .map((item) => {
-      const firestoreFood =
-        allFoods.find(
-          (firestoreItem) =>
-            firestoreItem.name === item.name
-        );
+      const firestoreFood = allFoods.find(
+        (firestoreItem) =>
+          firestoreItem.name === item.name
+      );
 
       return {
-        ...item,
         ...(firestoreFood || {}),
+        ...item,
+
+        // Keep local ID
         id: item.id,
+
+        // IMPORTANT:
+        // Always keep local/public image
+        image: item.image,
       };
     });
 

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./Hero.css";
-import biryani from "../assets/foods/biriyani.jpg";
 
 function Hero() {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -17,9 +16,7 @@ function Hero() {
 
   return (
     <section className="hero">
-
       <div className="hero-content">
-
         <div className="hero-welcome">
           🍴 Welcome to Foodie Hub
         </div>
@@ -42,11 +39,9 @@ function Hero() {
         >
           Explore Menu 🍽
         </button>
-
       </div>
 
       <div className="hero-image-container">
-
         {!imageLoaded && (
           <div className="image-loader">
             🍛
@@ -54,7 +49,7 @@ function Hero() {
         )}
 
         <img
-          src={biryani}
+          src="/biriyani.jpg"
           alt="Delicious Indian Biryani"
           className={`hero-food-image ${
             imageLoaded ? "image-visible" : ""
@@ -68,9 +63,7 @@ function Hero() {
           ⭐ 4.9
           <span>Highly Rated</span>
         </div>
-
       </div>
-
     </section>
   );
 }

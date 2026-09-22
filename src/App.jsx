@@ -1,5 +1,3 @@
-
-import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -29,17 +27,11 @@ import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminFoodsPage from "./pages/AdminFoodsPage";
 import KitchenDashboard from "./pages/KitchenDashboardPage";
 
-import { seedFoods } from "./utils/seedFoods";
-
 import NotFoundPage from "./pages/NotFoundPage";
 
 import "./App.css";
 
 function App() {
-  useEffect(() => {
-    seedFoods();
-  }, []);
-
   return (
     <>
       <Navbar />
@@ -155,14 +147,15 @@ function App() {
               </AdminRoute>
             }
           />
+
           <Route
-  path="/kitchen"
-  element={
-    <AdminRoute>
-      <KitchenDashboard />
-    </AdminRoute>
-  }
-/>
+            path="/kitchen"
+            element={
+              <AdminRoute>
+                <KitchenDashboard />
+              </AdminRoute>
+            }
+          />
 
           <Route
             path="/admin/orders"

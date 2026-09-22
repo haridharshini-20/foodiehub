@@ -29,34 +29,40 @@ function Menu() {
   } = useContext(FavoriteContext);
 
   // =========================
-  // LOAD AVAILABILITY FROM FIRESTORE
+  // LOAD FOOD DATA
   // =========================
 
   useEffect(() => {
     const loadFoods = async () => {
       try {
+        setLoadingFoods(true);
+
         const snapshot = await getDocs(
           collection(db, "foods")
         );
 
-        const firestoreFoods =
-          snapshot.docs.map((foodDoc) => ({
+        const firestoreFoods = snapshot.docs.map(
+          (foodDoc) => ({
             firestoreId: foodDoc.id,
             ...foodDoc.data(),
-          }));
+          })
+        );
+
+        /*
+          IMPORTANT:
+
+          Local foodData is kept LAST so that
+          image paths such as /biriyani.jpg
+          are not overwritten by Firestore.
+        */
 
         const mergedFoods = foodData.map(
           (localFood) => {
-            const matches =
-              firestoreFoods.filter(
-                (firestoreFood) =>
-                  firestoreFood.name ===
-                  localFood.name
-              );
+            const matches = firestoreFoods.filter(
+              (firestoreFood) =>
+                firestoreFood.name === localFood.name
+            );
 
-            // If duplicate documents exist,
-            // use unavailable if ANY matching
-            // document is unavailable.
             const unavailableFood =
               matches.find(
                 (item) =>
@@ -67,20 +73,27 @@ function Menu() {
               unavailableFood || matches[0];
 
             return {
-              ...localFood,
               ...(firestoreFood || {}),
+              ...localFood,
+
+              // Keep the local ID
               id: localFood.id,
+
+              // Always use the image from foodData
+              image: localFood.image,
             };
           }
         );
 
         setFoods(mergedFoods);
-
       } catch (error) {
         console.error(
           "Error loading food availability:",
           error
         );
+
+        // If Firebase fails, still show local foods
+        setFoods(foodData);
       } finally {
         setLoadingFoods(false);
       }
@@ -95,7 +108,6 @@ function Menu() {
 
   const filteredFood = foods
     .filter((food) => {
-
       const categoryMatch =
         category === "All" ||
         food.category === category;
@@ -103,9 +115,7 @@ function Menu() {
       const searchMatch =
         food.name
           .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          );
+          .includes(search.toLowerCase());
 
       return (
         categoryMatch &&
@@ -113,7 +123,6 @@ function Menu() {
       );
     })
     .sort((a, b) => {
-
       if (sort === "price-low") {
         return a.price - b.price;
       }
@@ -156,13 +165,13 @@ function Menu() {
       className="menu-section"
     >
 
-      {/* Menu Title */}
+      {/* MENU TITLE */}
 
       <h2 className="menu-title">
         🍽️ Foodie Hub Menu
       </h2>
 
-      {/* Search */}
+      {/* SEARCH */}
 
       <input
         type="text"
@@ -174,7 +183,7 @@ function Menu() {
         }
       />
 
-      {/* Sort */}
+      {/* SORT */}
 
       <select
         className="sort-select"
@@ -200,7 +209,7 @@ function Menu() {
         </option>
       </select>
 
-      {/* Clear Filters */}
+      {/* CLEAR FILTERS */}
 
       <button
         className="clear-filters-btn"
@@ -213,7 +222,7 @@ function Menu() {
         ✕ Clear Filters
       </button>
 
-      {/* Categories */}
+      {/* CATEGORIES */}
 
       <div className="categories">
 
@@ -297,7 +306,7 @@ function Menu() {
 
       </div>
 
-      {/* Food Cards */}
+      {/* FOOD CARDS */}
 
       <div className="menu-container">
 
@@ -325,21 +334,28 @@ function Menu() {
                 key={food.id}
               >
 
-                {/* Food Image */}
+                {/* FOOD IMAGE */}
 
                 <div className="food-image">
 
                   <Link
                     to={`/food/${food.id}`}
                   >
-                   <img
-  src={food.image}
-  alt={food.name}
-  loading="lazy"
-/>
+                    <img
+                      src={food.image}
+                      alt={food.name}
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error(
+                          "Image failed:",
+                          food.name,
+                          food.image
+                        );
+                      }}
+                    />
                   </Link>
 
-                  {/* Favorite */}
+                  {/* FAVORITE */}
 
                   <button
                     className={`favorite-btn ${
@@ -382,7 +398,7 @@ function Menu() {
                       : "🤍"}
                   </button>
 
-                  {/* Rating */}
+                  {/* RATING */}
 
                   <div className="rating-badge">
                     ⭐ {food.rating}
@@ -390,7 +406,7 @@ function Menu() {
 
                 </div>
 
-                {/* Food Information */}
+                {/* FOOD INFORMATION */}
 
                 <div className="food-info">
 
@@ -406,7 +422,7 @@ function Menu() {
                     🍴 {food.category}
                   </p>
 
-                  {/* Availability */}
+                  {/* AVAILABILITY */}
 
                   {unavailable ? (
 
@@ -422,7 +438,7 @@ function Menu() {
 
                   )}
 
-                  {/* Price + Cart */}
+                  {/* PRICE + CART */}
 
                   <div className="food-footer">
 
@@ -475,7 +491,7 @@ function Menu() {
 
       </div>
 
-      {/* Toast */}
+      {/* TOAST */}
 
       {toast && (
         <Toast
@@ -491,4 +507,4 @@ function Menu() {
   );
 }
 
-export default Menu; 
+export default Menu;
