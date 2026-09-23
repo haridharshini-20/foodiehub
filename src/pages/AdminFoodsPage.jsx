@@ -9,8 +9,38 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../firebase";
+import foodData from "../data/foodData";
 import "./AdminFoodsPage.css";
 
+// =====================================================
+// GET CORRECT IMAGE FOR FOOD
+// =====================================================
+const getFoodImage = (food) => {
+  if (!food) return "";
+
+  // Find matching food from local foodData.js
+  const localFood = foodData.find(
+    (item) =>
+      item.name?.trim().toLowerCase() ===
+      food.name?.trim().toLowerCase()
+  );
+
+  // Prefer the local image path
+  if (localFood?.image) {
+    return localFood.image;
+  }
+
+  // Otherwise use Firestore image
+  if (food.image) {
+    return food.image;
+  }
+
+  return "";
+};
+
+// =====================================================
+// ADMIN FOODS PAGE
+// =====================================================
 function AdminFoodsPage() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +58,9 @@ function AdminFoodsPage() {
     description: "",
   });
 
-  // =========================
+  // =====================================================
   // LOAD FOODS FROM FIRESTORE
-  // =========================
-
+  // =====================================================
   useEffect(() => {
     const loadFoods = async () => {
       try {
@@ -39,10 +68,18 @@ function AdminFoodsPage() {
           collection(db, "foods")
         );
 
-        const foodsData = snapshot.docs.map((foodDoc) => ({
-          id: foodDoc.id,
-          ...foodDoc.data(),
-        }));
+        const foodsData = snapshot.docs.map((foodDoc) => {
+          const firestoreFood = foodDoc.data();
+
+          return {
+            id: foodDoc.id,
+            ...firestoreFood,
+
+            // IMPORTANT:
+            // Use the correct image from foodData.js
+            image: getFoodImage(firestoreFood),
+          };
+        });
 
         setFoods(foodsData);
       } catch (error) {
@@ -55,10 +92,9 @@ function AdminFoodsPage() {
     loadFoods();
   }, []);
 
-  // =========================
+  // =====================================================
   // OPEN ADD FORM
-  // =========================
-
+  // =====================================================
   const handleOpenAddForm = () => {
     setEditingFood(null);
 
@@ -75,10 +111,9 @@ function AdminFoodsPage() {
     setShowAddForm(true);
   };
 
-  // =========================
+  // =====================================================
   // ADD / UPDATE FOOD
-  // =========================
-
+  // =====================================================
   const handleAddFood = async () => {
     if (
       !newFood.name ||
@@ -92,7 +127,7 @@ function AdminFoodsPage() {
     }
 
     try {
-      const foodData = {
+      const foodDataToSave = {
         name: newFood.name,
         category: newFood.category,
         state: newFood.state,
@@ -104,11 +139,13 @@ function AdminFoodsPage() {
         available: editingFood?.available ?? true,
       };
 
+      // =================================================
       // UPDATE EXISTING FOOD
+      // =================================================
       if (editingFood) {
         await updateDoc(
           doc(db, "foods", editingFood.id),
-          foodData
+          foodDataToSave
         );
 
         setFoods((previousFoods) =>
@@ -116,7 +153,13 @@ function AdminFoodsPage() {
             food.id === editingFood.id
               ? {
                   ...food,
-                  ...foodData,
+                  ...foodDataToSave,
+
+                  // Keep correct local image
+                  image: getFoodImage({
+                    ...food,
+                    ...foodDataToSave,
+                  }),
                 }
               : food
           )
@@ -125,25 +168,34 @@ function AdminFoodsPage() {
         alert("Food updated successfully!");
       }
 
+      // =================================================
       // ADD NEW FOOD
+      // =================================================
       else {
         const docRef = await addDoc(
           collection(db, "foods"),
-          foodData
+          foodDataToSave
         );
+
+        const addedFood = {
+          id: docRef.id,
+          ...foodDataToSave,
+        };
 
         setFoods((previousFoods) => [
           ...previousFoods,
           {
-            id: docRef.id,
-            ...foodData,
+            ...addedFood,
+            image: getFoodImage(addedFood),
           },
         ]);
 
         alert("Food added successfully!");
       }
 
+      // =================================================
       // RESET FORM
+      // =================================================
       setNewFood({
         name: "",
         category: "",
@@ -162,77 +214,82 @@ function AdminFoodsPage() {
     }
   };
 
-  // =========================
+  // =====================================================
   // EDIT FOOD
-  // =========================
+  // =====================================================
+  const handleEdit = (food) => {
+    setEditingFood(food);
 
- const handleEdit = (food) => {
-  setEditingFood(food);
+    setNewFood({
+      name: food.name || "",
+      category: food.category || "",
+      state: food.state || "",
+      price: food.price ?? "",
+      rating: food.rating ?? "",
 
-  setNewFood({
-    name: food.name || "",
-    category: food.category || "",
-    state: food.state || "",
-    price: food.price ?? "",
-    rating: food.rating ?? "",
-    image: food.image || "",
-    description: food.description || "",
-  });
+      // Use the actual displayed image
+      image: getFoodImage(food),
 
-  setShowAddForm(true);
+      description: food.description || "",
+    });
 
-  setTimeout(() => {
-    const form = document.querySelector(".add-food-form");
+    setShowAddForm(true);
 
-    if (form) {
-      form.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, 100);
-};
-const handleToggleAvailability = async (food) => {
-  const newAvailability = food.available === false;
+    setTimeout(() => {
+      const form = document.querySelector(".add-food-form");
 
-  try {
-    await updateDoc(
-      doc(db, "foods", food.id),
-      {
-        available: newAvailability,
+      if (form) {
+        form.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
-    );
+    }, 100);
+  };
 
-    setFoods((previousFoods) =>
-      previousFoods.map((item) =>
-        item.id === food.id
-          ? {
-              ...item,
-              available: newAvailability,
-            }
-          : item
-      )
-    );
+  // =====================================================
+  // TOGGLE AVAILABILITY
+  // =====================================================
+  const handleToggleAvailability = async (food) => {
+    const newAvailability = food.available === false;
 
-    alert(
-      newAvailability
-        ? "Food is now available!"
-        : "Food is now unavailable!"
-    );
-  } catch (error) {
-    console.error(
-      "Error updating availability:",
-      error
-    );
+    try {
+      await updateDoc(
+        doc(db, "foods", food.id),
+        {
+          available: newAvailability,
+        }
+      );
 
-    alert("Failed to update food availability.");
-  }
-};
+      setFoods((previousFoods) =>
+        previousFoods.map((item) =>
+          item.id === food.id
+            ? {
+                ...item,
+                available: newAvailability,
+              }
+            : item
+        )
+      );
 
-  // =========================
+      alert(
+        newAvailability
+          ? "Food is now available!"
+          : "Food is now unavailable!"
+      );
+    } catch (error) {
+      console.error(
+        "Error updating availability:",
+        error
+      );
+
+      alert("Failed to update food availability.");
+    }
+  };
+
+  // =====================================================
   // CANCEL FORM
-  // =========================
-
+  // =====================================================
   const handleCancel = () => {
     setShowAddForm(false);
     setEditingFood(null);
@@ -248,10 +305,9 @@ const handleToggleAvailability = async (food) => {
     });
   };
 
-  // =========================
+  // =====================================================
   // DELETE FOOD
-  // =========================
-
+  // =====================================================
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this food?"
@@ -281,10 +337,9 @@ const handleToggleAvailability = async (food) => {
     }
   };
 
-  // =========================
+  // =====================================================
   // LOADING
-  // =========================
-
+  // =====================================================
   if (loading) {
     return (
       <section className="admin-foods-page">
@@ -295,15 +350,15 @@ const handleToggleAvailability = async (food) => {
     );
   }
 
-  // =========================
+  // =====================================================
   // PAGE
-  // =========================
-
+  // =====================================================
   return (
     <section className="admin-foods-page">
 
-      {/* HEADER */}
-
+      {/* =================================================
+          HEADER
+      ================================================= */}
       <div className="admin-foods-header">
         <div>
           <h1>🍽️ Manage Foods</h1>
@@ -323,14 +378,16 @@ const handleToggleAvailability = async (food) => {
         </button>
       </div>
 
-      {/* COUNT */}
-
+      {/* =================================================
+          COUNT
+      ================================================= */}
       <div className="food-count">
         {foods.length} Food Items
       </div>
 
-      {/* ADD / EDIT FORM */}
-
+      {/* =================================================
+          ADD / EDIT FORM
+      ================================================= */}
       {showAddForm && (
         <div className="add-food-form">
 
@@ -446,8 +503,9 @@ const handleToggleAvailability = async (food) => {
         </div>
       )}
 
-      {/* EMPTY */}
-
+      {/* =================================================
+          EMPTY
+      ================================================= */}
       {foods.length === 0 ? (
 
         <div className="admin-foods-empty">
@@ -468,121 +526,152 @@ const handleToggleAvailability = async (food) => {
 
       ) : (
 
-        /* FOOD GRID */
-
+        /* =================================================
+           FOOD GRID
+        ================================================= */
         <div className="admin-food-grid">
 
-          {foods.map((food) => (
+          {foods.map((food) => {
 
-            <div
-              className="admin-food-card"
-              key={food.id}
-            >
+            // Get correct image
+            const foodImage = getFoodImage(food);
 
-              {/* IMAGE */}
+            return (
+              <div
+                className="admin-food-card"
+                key={food.id}
+              >
 
-              {food.image ? (
+                {/* =================================================
+                    IMAGE
+                ================================================= */}
+                {foodImage ? (
 
-                <img
-                  src={food.image}
-                  alt={food.name}
-                  className="admin-food-image"
-                />
+                  <img
+                    src={foodImage}
+                    alt={food.name}
+                    className="admin-food-image"
 
-              ) : (
+                    onError={(e) => {
+                      console.error(
+                        `Image failed to load: ${foodImage}`
+                      );
 
-                <div className="admin-food-image-placeholder">
-                  🍽️
-                </div>
+                      // Hide broken image
+                      e.currentTarget.style.display =
+                        "none";
 
-              )}
+                      // Show placeholder
+                      const parent =
+                        e.currentTarget.parentElement;
 
-              {/* CONTENT */}
-
-              <div className="admin-food-content">
-
-                <div className="admin-food-title">
-
-                  <h3>
-                    {food.name}
-                  </h3>
-
-                  <span>
-                    ⭐ {food.rating || 0}
-                  </span>
-
-                </div>
-
-                <p className="food-category">
-                  {food.category || "Food"}
-                </p>
-
-                <p className="food-state">
-                  📍 {food.state || "India"}
-                </p>
-                <p
-  className={
-    food.available === false
-      ? "food-unavailable"
-      : "food-available"
-  }
->
-  {food.available === false
-    ? "🔴 Unavailable"
-    : "🟢 Available"}
-</p>
-
-                <p className="food-description">
-                  {food.description ||
-                    "No description available."}
-                </p>
-
-                <div className="admin-food-bottom">
-
-                  <strong>
-                    ₹{food.price || 0}
-                  </strong>
-
-                  <div className="food-actions">
-
-                    <button
-                      className="edit-food-btn"
-                      type="button"
-                      onClick={() =>
-                        handleEdit(food)
+                      if (parent) {
+                        parent.classList.add(
+                          "image-load-failed"
+                        );
                       }
-                    >
-                      Edit
-                    </button>
-                    <button
-  className="availability-food-btn"
-  type="button"
-  onClick={() => handleToggleAvailability(food)}
->
-  {food.available === false
-    ? "Make Available"
-    : "Make Unavailable"}
-</button>
+                    }}
+                  />
 
-                    <button
-                      className="delete-food-btn"
-                      type="button"
-                      onClick={() =>
-                        handleDelete(food.id)
-                      }
-                    >
-                      Delete
-                    </button>
+                ) : (
+
+                  <div className="admin-food-image-placeholder">
+                    🍽️
+                  </div>
+
+                )}
+
+                {/* =================================================
+                    CONTENT
+                ================================================= */}
+                <div className="admin-food-content">
+
+                  <div className="admin-food-title">
+
+                    <h3>
+                      {food.name}
+                    </h3>
+
+                    <span>
+                      ⭐ {food.rating || 0}
+                    </span>
+
+                  </div>
+
+                  <p className="food-category">
+                    {food.category || "Food"}
+                  </p>
+
+                  <p className="food-state">
+                    📍 {food.state || "India"}
+                  </p>
+
+                  <p
+                    className={
+                      food.available === false
+                        ? "food-unavailable"
+                        : "food-available"
+                    }
+                  >
+                    {food.available === false
+                      ? "🔴 Unavailable"
+                      : "🟢 Available"}
+                  </p>
+
+                  <p className="food-description">
+                    {food.description ||
+                      "No description available."}
+                  </p>
+
+                  <div className="admin-food-bottom">
+
+                    <strong>
+                      ₹{food.price || 0}
+                    </strong>
+
+                    <div className="food-actions">
+
+                      <button
+                        className="edit-food-btn"
+                        type="button"
+                        onClick={() =>
+                          handleEdit(food)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="availability-food-btn"
+                        type="button"
+                        onClick={() =>
+                          handleToggleAvailability(food)
+                        }
+                      >
+                        {food.available === false
+                          ? "Make Available"
+                          : "Make Unavailable"}
+                      </button>
+
+                      <button
+                        className="delete-food-btn"
+                        type="button"
+                        onClick={() =>
+                          handleDelete(food.id)
+                        }
+                      >
+                        Delete
+                      </button>
+
+                    </div>
 
                   </div>
 
                 </div>
 
               </div>
-
-            </div>
-
-          ))}
+            );
+          })}
 
         </div>
 
